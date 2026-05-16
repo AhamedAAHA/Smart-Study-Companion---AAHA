@@ -126,9 +126,27 @@ npm run dev
 
 ## Deployment
 
-- **Client:** Vercel — set `NEXT_PUBLIC_API_URL` to your API URL
-- **Server:** Render/Railway — set env vars from `.env.example`
-- **Database:** MongoDB Atlas
+**Live**
+
+- App: https://aaha1.netlify.app
+- API: https://smart-study-api-sjc4.onrender.com/api/health
+- Repo: https://github.com/AhamedAAHA/SmartStudyCompanionAAHA
+
+**Netlify** (`client/`)
+
+- Base directory: `client`
+- Build: `npm run build`
+- Publish directory: *(empty — Next.js plugin)*
+- Env: `NEXT_PUBLIC_API_URL=https://smart-study-api-sjc4.onrender.com/api`
+
+**Render** (`server/`)
+
+- Root directory: `server`
+- Build: `npm install && npm run build`
+- Start: `npm start`
+- Env: copy from `server/.env.example` — set `MONGODB_URI`, `JWT_SECRET`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `CLIENT_URL=https://aaha1.netlify.app`
+
+**Database:** MongoDB Atlas (allow `0.0.0.0/0` for Render)
 
 ## Notes
 
