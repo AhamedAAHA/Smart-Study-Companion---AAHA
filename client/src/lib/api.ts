@@ -1,5 +1,13 @@
 /** Same-origin `/api` is proxied to Express via next.config.mjs rewrites */
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "/api").replace(/\/$/, "");
+export function getApiBaseUrl(): string {
+  let url = (process.env.NEXT_PUBLIC_API_URL || "/api").replace(/\/$/, "");
+  if (url.startsWith("http") && !url.endsWith("/api")) {
+    url = `${url}/api`;
+  }
+  return url;
+}
+
+const API_URL = getApiBaseUrl();
 
 export class ApiError extends Error {
   status: number;

@@ -19,14 +19,16 @@ app.use(
   cors({
     origin(origin, callback) {
       if (!origin) return callback(null, true);
-      if (origin === env.clientUrl) return callback(null, true);
+      const normalized = origin.replace(/\/$/, "");
+      if (env.clientOrigins.includes(normalized)) return callback(null, true);
       if (
         !env.isProduction &&
         /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
       ) {
         return callback(null, true);
       }
-      callback(new Error(`CORS blocked: ${origin}`));
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(null, false);
     },
     credentials: true,
     exposedHeaders: ["Content-Disposition", "Content-Type", "Content-Length"],

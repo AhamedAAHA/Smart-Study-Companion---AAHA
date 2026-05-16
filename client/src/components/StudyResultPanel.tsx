@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bookmark, Copy, Download, FileText, Loader2 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, getApiBaseUrl } from "@/lib/api";
 import { StudyMaterial, VivaSession } from "@/types";
 import { MarkdownContent } from "./MarkdownContent";
 import { FlashcardDeck } from "./FlashcardDeck";
@@ -15,8 +15,7 @@ import { BackLink } from "./ui/BackLink";
 import { downloadAuthenticatedFile } from "@/lib/downloadFile";
 import { getMaterialTypeLabel } from "@/lib/materialLabels";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE = getApiBaseUrl();
 
 type DownloadFormat = "pdf" | "docx";
 
