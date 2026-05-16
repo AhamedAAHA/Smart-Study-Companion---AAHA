@@ -17,7 +17,17 @@ const app = express();
 
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (origin === env.clientUrl) return callback(null, true);
+      if (
+        !env.isProduction &&
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
     exposedHeaders: ["Content-Disposition", "Content-Type", "Content-Length"],
   })
