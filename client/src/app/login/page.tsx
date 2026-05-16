@@ -79,13 +79,6 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
-
-          <aside className="mt-6 rounded-xl bg-slate-50 p-3 text-xs text-fg-subtle dark:bg-slate-800/80">
-            <p className="font-semibold text-fg">Demo accounts (run npm run seed on server):</p>
-            <p className="mt-1">student@demo.lk / student123</p>
-            <p>lecturer@demo.lk / lecturer123</p>
-            <p>admin@demo.lk / admin123</p>
-          </aside>
         </section>
       </FadeIn>
     </main>

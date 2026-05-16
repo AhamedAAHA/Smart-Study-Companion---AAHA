@@ -54,14 +54,15 @@ async function getDocumentText(
     );
   }
 
-  if (doc.status === "failed") {
+  const text = doc.extractedText?.trim() || "";
+
+  if (doc.status === "failed" && text.length < 20) {
     throw new AppError(
       "Could not read this file. Upload a text-based PDF (not a scanned image), or export PowerPoint to PDF.",
       422
     );
   }
 
-  const text = doc.extractedText?.trim() || "";
   if (text.length < 20) {
     throw new AppError(
       "Not enough text in this document for AI tools. Re-upload a PDF with selectable text.",
@@ -919,7 +920,12 @@ router.get("/materials/:id/download", async (req: AuthRequest, res, next) => {
 
     const filename = buildExportFilename(material.title, format);
     res.setHeader("Content-Type", getExportMime(format));
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Length", String(buffer.length));
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`
+    );
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition, Content-Type");
     res.send(buffer);
   } catch (e) {
     next(e);

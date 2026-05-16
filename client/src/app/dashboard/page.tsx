@@ -51,8 +51,12 @@ function DashboardContent() {
     load();
   }, []);
 
-  const onUploaded = (doc: LectureDocument) => {
-    load();
+  const onUploaded = async (doc: LectureDocument) => {
+    try {
+      await load();
+    } catch {
+      /* upload succeeded; dashboard refresh is optional */
+    }
     window.location.href = `/documents/${doc._id}`;
   };
 

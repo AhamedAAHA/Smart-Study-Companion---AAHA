@@ -8,6 +8,7 @@ import { LectureDocument } from "@/types";
 export function FileUpload({ onUploaded }: { onUploaded: (doc: LectureDocument) => void }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [title, setTitle] = useState("");
   const [module, setModule] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -23,6 +24,7 @@ export function FileUpload({ onUploaded }: { onUploaded: (doc: LectureDocument) 
     const file = e.target.files?.[0];
     if (!file) return;
     setError("");
+    setSuccess("");
     setSelectedFile(file);
   };
 
@@ -41,6 +43,7 @@ export function FileUpload({ onUploaded }: { onUploaded: (doc: LectureDocument) 
 
     setUploading(true);
     setError("");
+    setSuccess("");
 
     const form = new FormData();
     form.append("file", selectedFile);
@@ -52,11 +55,14 @@ export function FileUpload({ onUploaded }: { onUploaded: (doc: LectureDocument) 
         "/documents/upload",
         { method: "POST", body: form }
       );
+      setError("");
+      setSuccess("Upload complete — opening your lecture…");
       onUploaded(res.data);
       setTitle("");
       setModule("");
       clearFile();
     } catch (err) {
+      setSuccess("");
       setError(err instanceof ApiError ? err.message : "Upload failed");
     } finally {
       setUploading(false);
@@ -143,6 +149,9 @@ export function FileUpload({ onUploaded }: { onUploaded: (doc: LectureDocument) 
         )}
       </label>
 
+      {success && !error && (
+        <p className="text-sm font-medium text-brand-700 dark:text-brand-300">{success}</p>
+      )}
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <button

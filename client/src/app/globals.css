@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display:
+    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
+  /* Workspace OS surfaces — day (light) */
+  --surface-page: #f5f5f7;
+  --surface-card: #ffffff;
+  --surface-elevated: #fafafa;
+  --surface-inset: #f0f0f2;
+  --surface-border: rgba(0, 0, 0, 0.08);
+  --surface-text: #1d1d1f;
+  --surface-text-secondary: #6e6e73;
+  --surface-text-muted: #86868b;
+  --surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.06);
+}
+
+html.dark {
+  --surface-page: #09090b;
+  --surface-card: #161618;
+  --surface-elevated: #1c1c1e;
+  --surface-inset: #0f0f11;
+  --surface-border: rgba(255, 255, 255, 0.09);
+  --surface-text: #f5f5f7;
+  --surface-text-secondary: #a1a1a6;
+  --surface-text-muted: #86868b;
+  --surface-shadow: 0 4px 32px rgba(0, 0, 0, 0.45);
+}
+
 /* ── Color palettes (RGB channels) ── */
 :root,
 [data-color="teal"] {
@@ -78,17 +110,59 @@
   }
 
   body {
+    font-family: var(--font-sans);
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.011em;
     @apply antialiased transition-colors duration-300;
   }
 
-  .lio-app {
-    background: #030306;
-    color: rgb(248 250 252 / 0.92);
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.028em;
+    text-wrap: balance;
   }
 
-  html:not(.dark) .lio-app {
-    background: #f8fafc;
-    color: #0f172a;
+  h1 {
+    @apply text-2xl leading-tight tracking-tight sm:text-3xl;
+    font-weight: 700;
+  }
+
+  h2 {
+    @apply text-xl leading-snug tracking-tight sm:text-2xl;
+    font-weight: 700;
+  }
+
+  h3 {
+    @apply text-lg leading-snug;
+    font-weight: 600;
+  }
+
+  h4 {
+    font-weight: 600;
+  }
+
+  p {
+    @apply leading-normal;
+    letter-spacing: -0.008em;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  .lio-app {
+    background: var(--surface-page);
+    color: var(--surface-text);
   }
 
   html.dark .card,
@@ -156,7 +230,7 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-400/50 disabled:opacity-60 disabled:hover:translate-y-0;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold tracking-wide text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-400/50 disabled:opacity-60 disabled:hover:translate-y-0;
     background: linear-gradient(135deg, rgb(var(--brand-500)), rgb(var(--brand-700)));
     box-shadow:
       0 0 0 1px rgb(255 255 255 / 0.1) inset,
@@ -170,23 +244,16 @@
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-60;
-    border: 1px solid rgb(255 255 255 / 0.12);
-    background: rgb(255 255 255 / 0.06);
-    color: rgb(248 250 252 / 0.9);
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand-400/30 disabled:opacity-60;
+    border: 1px solid var(--surface-border);
+    background: var(--surface-card);
+    color: var(--surface-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
 
-  html:not(.dark) .btn-secondary {
-    @apply border-slate-200 bg-white/90 text-slate-700;
-  }
-
-  html:not(.dark) .btn-secondary:hover:not(:disabled) {
-    @apply border-slate-300 bg-slate-50 text-slate-900;
-  }
-
-  html.dark .btn-secondary:hover:not(:disabled) {
-    background: rgb(255 255 255 / 0.1);
-    border-color: rgb(255 255 255 / 0.2);
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--surface-elevated);
+    border-color: color-mix(in srgb, var(--surface-border) 80%, rgb(var(--brand-400)));
   }
 
   /* Tiles inside cards (study tools, etc.) */
@@ -208,7 +275,19 @@
   }
 
   .study-tool-grid {
-    @apply grid grid-cols-2 gap-2.5;
+    @apply grid gap-2.5;
+  }
+
+  .study-tool-grid-3 {
+    @apply grid-cols-1 sm:grid-cols-3;
+  }
+
+  .study-tool-grid-2 {
+    @apply grid-cols-2;
+  }
+
+  .study-hub-link {
+    @apply flex items-center gap-3 rounded-xl border border-brand-200/70 bg-brand-50/40 p-4 transition hover:border-brand-300 hover:bg-brand-50 dark:border-brand-800/50 dark:bg-brand-950/25 dark:hover:border-brand-700;
   }
 
   .study-tool-card {
@@ -219,8 +298,13 @@
     @apply flex items-center gap-3 rounded-xl bg-gradient-to-r from-brand-600 to-teal-600 px-4 py-3.5 text-white shadow-md transition hover:brightness-110;
   }
 
-  .study-doubt-panel {
+  .study-doubt-panel,
+  .study-language-panel {
     @apply rounded-xl border border-slate-200/80 bg-slate-50/40 p-4 dark:border-slate-700/80 dark:bg-slate-900/30;
+  }
+
+  .study-language-panel {
+    @apply border-teal-200/60 dark:border-teal-800/40;
   }
 
   .btn-accent {
@@ -229,22 +313,106 @@
   }
 
   .card {
-    @apply rounded-2xl border p-6 backdrop-blur-xl transition-all duration-300;
-    border-color: rgb(255 255 255 / 0.08);
-    background: rgb(255 255 255 / 0.04);
-    box-shadow:
-      0 24px 60px -24px rgba(0, 0, 0, 0.55),
-      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    @apply rounded-2xl border p-6 transition-all duration-300;
+    border-color: var(--surface-border);
+    background: var(--surface-card);
+    box-shadow: var(--surface-shadow);
     transform-style: preserve-3d;
+    color: var(--surface-text);
   }
 
-  html:not(.dark) .card {
-    @apply border-slate-200/80 bg-white/95 text-slate-800;
-    box-shadow: 0 4px 24px -4px rgb(var(--brand-600) / 0.12);
+  .widget-card {
+    @apply card flex flex-col gap-4;
   }
 
-  html.dark .card {
-    @apply text-slate-100;
+  .widget-card-header {
+    @apply flex items-center justify-between gap-2;
+  }
+
+  .widget-card-icon {
+    @apply flex h-9 w-9 items-center justify-center rounded-xl border;
+    border-color: var(--surface-border);
+    background: var(--surface-inset);
+  }
+
+  .widget-card-body {
+    @apply flex-1 space-y-2;
+  }
+
+  .widget-card-footer {
+    @apply border-t pt-4;
+    border-color: var(--surface-border);
+  }
+
+  .widget-tags {
+    @apply flex list-none flex-wrap gap-2 p-0;
+  }
+
+  .pill-tag {
+    @apply inline-flex rounded-lg border px-2.5 py-1 text-[11px] font-medium;
+    border-color: var(--surface-border);
+    background: var(--surface-inset);
+    color: var(--surface-text-secondary);
+  }
+
+  .status-dot {
+    @apply inline-block h-2 w-2 shrink-0 rounded-full;
+  }
+
+  .status-dot-live {
+    @apply bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)];
+  }
+
+  .status-dot-alert {
+    @apply bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)];
+  }
+
+  .theme-segment {
+    @apply inline-flex rounded-xl border p-0.5;
+    border-color: var(--surface-border);
+    background: var(--surface-inset);
+  }
+
+  .theme-segment-btn {
+    @apply inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition;
+    color: var(--surface-text-muted);
+  }
+
+  .theme-segment-btn.is-active {
+    background: var(--surface-card);
+    color: var(--surface-text);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  }
+
+  html.dark .theme-segment-btn.is-active {
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .theme-panel {
+    @apply absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border p-2;
+    border-color: var(--surface-border);
+    background: var(--surface-card);
+    box-shadow: var(--surface-shadow);
+  }
+
+  .theme-panel-label {
+    @apply px-2 py-1 text-[11px] font-medium uppercase tracking-wide;
+    color: var(--surface-text-muted);
+  }
+
+  .theme-panel-item {
+    @apply flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm transition;
+    color: var(--surface-text-secondary);
+  }
+
+  .theme-panel-item:hover {
+    background: var(--surface-inset);
+    color: var(--surface-text);
+  }
+
+  .theme-panel-item.is-active {
+    background: rgb(var(--brand-500) / 0.12);
+    color: var(--surface-text);
   }
 
   .card-interactive {
@@ -252,7 +420,6 @@
   }
 
   .card-interactive:hover {
-    transform: translateY(-3px);
     border-color: rgb(var(--brand-400) / 0.35);
   }
 
@@ -283,14 +450,20 @@
     will-change: transform;
   }
 
-  /* Hero preview stays a dark “device” mock in light theme */
+  /* Hero preview — light workspace card in day mode */
   html:not(.dark) .glass-card-3d {
-    border-color: rgb(15 23 42 / 0.15);
-    background: linear-gradient(145deg, #1e293b 0%, #0f172a 55%, #020617 100%);
+    @apply text-slate-900;
+    border-color: var(--surface-border);
+    background: linear-gradient(
+      160deg,
+      #ffffff 0%,
+      #fafafa 42%,
+      #f4f4f5 100%
+    );
     box-shadow:
-      0 32px 64px -20px rgb(15 23 42 / 0.35),
-      0 0 0 1px rgb(15 23 42 / 0.08),
-      inset 0 1px 0 rgb(255 255 255 / 0.08);
+      0 24px 48px -18px rgb(15 23 42 / 0.14),
+      0 0 0 1px rgb(15 23 42 / 0.06),
+      inset 0 1px 0 rgb(255 255 255 / 1);
   }
 
   .glass-card-shine {
@@ -305,17 +478,22 @@
     );
   }
 
-  .glass-nav {
-    @apply rounded-2xl border backdrop-blur-2xl;
-    border-color: rgb(255 255 255 / 0.08);
-    background: rgb(8 8 12 / 0.65);
-    box-shadow:
-      0 8px 40px -12px rgba(0, 0, 0, 0.6),
-      inset 0 1px 0 rgb(255 255 255 / 0.06);
+  html:not(.dark) .glass-card-shine {
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgb(255 255 255 / 0.65) 44%,
+      rgb(255 255 255 / 0.35) 50%,
+      rgb(255 255 255 / 0.5) 56%,
+      transparent 62%
+    );
   }
 
-  html:not(.dark) .glass-nav {
-    @apply border-slate-200/80 bg-white/75;
+  .glass-nav {
+    @apply rounded-2xl border backdrop-blur-2xl;
+    border-color: var(--surface-border);
+    background: color-mix(in srgb, var(--surface-card) 82%, transparent);
+    box-shadow: var(--surface-shadow);
   }
 
   .nav-actions {
@@ -438,7 +616,7 @@
   }
 
   .landing-tag {
-    @apply inline-flex rounded-full border border-slate-200/80 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-fg-secondary backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-brand-300/50 dark:border-slate-600/80 dark:bg-slate-800/50 dark:text-slate-300 sm:text-sm;
+    @apply pill-tag text-xs sm:text-sm;
   }
 
   .landing-features {
@@ -466,11 +644,11 @@
   }
 
   .landing-feature-card {
-    @apply flex flex-col p-6 sm:p-7;
+    @apply widget-card p-6 sm:p-7;
   }
 
   .landing-feature-icon {
-    @apply inline-flex rounded-xl border border-slate-200/80 bg-brand-50/80 p-3 transition-transform duration-300 group-hover:scale-105 group-hover:border-brand-400/30 dark:border-white/10 dark:bg-white/5;
+    @apply flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-xl border border-slate-200/80 bg-brand-50/90 transition-transform duration-300 group-hover:scale-105 group-hover:border-brand-400/40 dark:border-brand-500/25 dark:bg-brand-950/60;
   }
 
   .landing-cta {
@@ -639,9 +817,13 @@ html.dark .mesh-blob-2 {
   @apply mb-2 mt-4 text-lg;
 }
 
+.prose-study {
+  font-family: var(--font-sans);
+}
+
 .prose-study p,
 .prose-study li {
-  @apply leading-relaxed text-slate-700 dark:text-slate-300;
+  @apply text-[0.9375rem] leading-[1.7] text-slate-700 dark:text-slate-300;
 }
 
 .prose-study ul {
@@ -650,11 +832,7 @@ html.dark .mesh-blob-2 {
 
 /* ── Lio OS–style background ── */
 .lio-bg {
-  background: #030306;
-}
-
-html:not(.dark) .lio-bg {
-  background: #f1f5f9;
+  background: var(--surface-page);
 }
 
 .lio-bg-grid {
@@ -734,39 +912,59 @@ html:not(.dark) .lio-bg-vignette {
   perspective: 1200px;
 }
 
-.section-glass {
-  @apply rounded-3xl border border-white/[0.08] bg-white/[0.02] p-8 text-slate-200 backdrop-blur-xl;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+/* Global 3D mouse tilt (Tilt3DEnhancer) */
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  will-change: transform;
 }
 
-html:not(.dark) .section-glass {
-  @apply border-slate-200/80 bg-white/80 text-slate-800;
-  box-shadow: 0 4px 24px -4px rgb(var(--brand-600) / 0.1);
+html.dark .tilt-3d:hover {
+  box-shadow:
+    0 28px 60px -24px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgb(var(--brand-400) / 0.15);
 }
+
+html:not(.dark) .tilt-3d:hover {
+  box-shadow: 0 16px 40px -16px rgb(var(--brand-600) / 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt-3d {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+}
+
+  .section-glass {
+    @apply widget-card rounded-3xl p-8;
+  }
 
 @layer utilities {
   .text-fg {
-    @apply text-slate-900 dark:text-slate-100;
+    color: var(--surface-text);
   }
 
   .text-fg-secondary {
-    @apply text-slate-700 dark:text-slate-300;
+    color: var(--surface-text-secondary);
   }
 
   .text-fg-muted {
-    @apply text-slate-500 dark:text-slate-400;
+    color: var(--surface-text-muted);
   }
 
   .text-fg-subtle {
-    @apply text-slate-600 dark:text-slate-400;
+    color: var(--surface-text-muted);
   }
 
   .text-fg-on-surface {
-    @apply text-slate-600 dark:text-slate-300;
+    color: var(--surface-text-secondary);
   }
 
   .text-fg-on-surface-strong {
-    @apply text-slate-800 dark:text-slate-100;
+    color: var(--surface-text);
   }
 
   .text-danger {
@@ -803,6 +1001,13 @@ html:not(.dark) .section-glass {
     @apply card space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto;
   }
 
+  .result-panel h3 {
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .markdown-panel {
     @apply max-h-[min(60vh,520px)] overflow-y-auto rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/30;
   }
@@ -816,7 +1021,25 @@ html:not(.dark) .section-glass {
   }
 }
 
-/* Lenis + GSAP smooth scroll */
+/* Scroll reveal — GSAP animates; keep visible if JS is off */
+.scroll-reveal,
+[data-scroll] {
+  opacity: 1;
+}
+
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt-3d {
+    transition: none;
+  }
+}
+
+/* Lenis + GSAP smooth scroll (optional — not active while Lenis is disabled) */
 html.lenis,
 html.lenis body {
   height: auto;

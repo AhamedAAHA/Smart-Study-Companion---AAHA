@@ -45,3 +45,41 @@ export function getMixModeLabel(mode: SriLankanMixMode): string {
 export function getExplanationStyleLabel(style: ExplanationStyle): string {
   return EXPLANATION_STYLE_OPTIONS.find((o) => o.value === style)?.label ?? style;
 }
+
+/** Single picker for Sri Lankan language study tools */
+export type LanguageToolId =
+  | SriLankanMixMode
+  | "tamil_explanation"
+  | "lecturer_tamil"
+  | "english_voice";
+
+export const LANGUAGE_TOOL_OPTIONS: {
+  id: LanguageToolId;
+  label: string;
+  hint: string;
+}[] = [
+  ...SRI_LANKAN_MIX_MODES.map((m) => ({
+    id: m.mode as LanguageToolId,
+    label: m.label,
+    hint: m.example,
+  })),
+  {
+    id: "tamil_explanation",
+    label: "Tamil explanation",
+    hint: "Simple Tamil with English technical terms",
+  },
+  {
+    id: "lecturer_tamil",
+    label: "Lecturer Tamil",
+    hint: "Warm lecture-style Tamil explanation",
+  },
+  {
+    id: "english_voice",
+    label: "English voice lesson",
+    hint: "Clear English explanation with spoken audio",
+  },
+];
+
+export function getLanguageToolLabel(id: LanguageToolId): string {
+  return LANGUAGE_TOOL_OPTIONS.find((o) => o.id === id)?.label ?? id;
+}

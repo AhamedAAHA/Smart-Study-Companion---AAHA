@@ -28,7 +28,14 @@ export const uploadLecture = multer({
   storage,
   limits: { fileSize: env.maxFileSizeMb * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    if (allowedMimes.includes(file.mimetype)) {
+    const lower = file.originalname.toLowerCase();
+    const byExt =
+      lower.endsWith(".pdf") ||
+      lower.endsWith(".ppt") ||
+      lower.endsWith(".pptx");
+    const byMime = allowedMimes.includes(file.mimetype);
+
+    if (byMime || byExt) {
       cb(null, true);
     } else {
       cb(new Error("Only PDF and PowerPoint files are allowed"));

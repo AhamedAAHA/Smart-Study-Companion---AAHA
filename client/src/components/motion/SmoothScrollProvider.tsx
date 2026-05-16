@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { initScrollAnimations } from "@/lib/scrollAnimations";
+import { bindLenisToScrollTrigger } from "@/lib/lenisScroll";
+import { animatePageEnter, initScrollAnimations } from "@/lib/scrollAnimations";
 
 import "lenis/dist/lenis.css";
 
@@ -15,7 +16,6 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** Walk mode needs native scroll + stable layout for audio UI */
 function isWalkRoute(pathname: string): boolean {
   return pathname.startsWith("/walk");
 }
@@ -25,25 +25,31 @@ export function SmoothScrollProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (prefersReducedMotion() || isWalkRoute(pathname)) return;
+    document.documentElement.classList.remove("lenis", "lenis-smooth");
+
+    if (prefersReducedMotion() || isWalkRoute(pathname)) {
+      return;
+    }
 
     let lenis: Lenis | null = null;
     let onTick: ((time: number) => void) | null = null;
+    let unbindLenis: (() => void) | null = null;
+    let cleanupScroll = () => {};
+    let initTimer: number | undefined;
 
     try {
       lenis = new Lenis({
-        duration: 1.1,
+        duration: 1.15,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         touchMultiplier: 1,
       });
-      lenisRef.current = lenis;
 
-      lenis.on("scroll", ScrollTrigger.update);
+      document.documentElement.classList.add("lenis", "lenis-smooth");
+      unbindLenis = bindLenisToScrollTrigger(lenis);
 
       onTick = (time: number) => {
         lenis?.raf(time * 1000);
@@ -51,33 +57,23 @@ export function SmoothScrollProvider({
       gsap.ticker.add(onTick);
       gsap.ticker.lagSmoothing(0);
 
-      ScrollTrigger.refresh();
+      initTimer = window.setTimeout(() => {
+        cleanupScroll = initScrollAnimations();
+        animatePageEnter(document.querySelector("main"));
+      }, 80);
     } catch (err) {
       console.warn("Smooth scroll disabled:", err);
       lenis?.destroy();
-      lenisRef.current = null;
+      document.documentElement.classList.remove("lenis", "lenis-smooth");
     }
 
     return () => {
+      if (initTimer) window.clearTimeout(initTimer);
+      cleanupScroll();
       if (onTick) gsap.ticker.remove(onTick);
+      unbindLenis?.();
       lenis?.destroy();
-      lenisRef.current = null;
-      ScrollTrigger.refresh();
-    };
-  }, [pathname]);
-
-  useEffect(() => {
-    if (isWalkRoute(pathname)) return;
-
-    let cleanupAnimations = () => {};
-    const t = window.setTimeout(() => {
-      ScrollTrigger.refresh();
-      cleanupAnimations = initScrollAnimations();
-    }, 150);
-
-    return () => {
-      window.clearTimeout(t);
-      cleanupAnimations();
+      document.documentElement.classList.remove("lenis", "lenis-smooth");
     };
   }, [pathname]);
 

@@ -68,22 +68,21 @@ router.post(
         approvedByLecturer: req.user!.role === "lecturer",
       });
 
-      try {
-        if (req.file.mimetype === "application/pdf") {
-          const text = await extractTextFromPdf(req.file.path);
-          lectureDoc.extractedText = text;
-          lectureDoc.status = "ready";
-        } else {
-          lectureDoc.extractedText =
-            `[PowerPoint uploaded: ${req.file.originalname}]\n\nFor full AI processing, export slides to PDF. Demo text: Review key concepts from ${title} — definitions, diagrams, and examples from your lecture.`;
-          lectureDoc.status = "ready";
-        }
-        await lectureDoc.save();
-      } catch (err) {
-        lectureDoc.status = "failed";
-        await lectureDoc.save();
-        throw err;
+      if (
+        req.file.mimetype === "application/pdf" ||
+        req.file.originalname.toLowerCase().endsWith(".pdf")
+      ) {
+        lectureDoc.extractedText = await extractTextFromPdf(
+          req.file.path,
+          title
+        );
+      } else {
+        lectureDoc.extractedText =
+          `[PowerPoint uploaded: ${req.file.originalname}]\n\nFor full AI processing, export slides to PDF. Demo text: Review key concepts from ${title} — definitions, diagrams, and examples from your lecture.`;
       }
+
+      lectureDoc.status = "ready";
+      await lectureDoc.save();
 
       res.status(201).json({ success: true, data: lectureDoc });
     } catch (e) {

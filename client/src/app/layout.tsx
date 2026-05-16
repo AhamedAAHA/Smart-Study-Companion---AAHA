@@ -1,21 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Literata } from "next/font/google";
+import "./fonts.css";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeInit } from "@/components/ThemeInit";
 import { Navbar } from "@/components/Navbar";
 import { PageBackground } from "@/components/PageBackground";
-import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-geist",
-});
-
-const literata = Literata({
-  subsets: ["latin"],
-  variable: "--font-display",
-});
+import { SmoothScrollInit } from "@/components/motion/SmoothScrollInit";
+import { Tilt3DEnhancer } from "@/components/motion/Tilt3DEnhancer";
 
 export const metadata: Metadata = {
   title: "Smart Study Companion | AI Learning for Sri Lankan Students",
@@ -29,21 +21,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      data-color="teal"
-      className={`dark ${inter.variable} ${literata.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="lio-app min-h-screen font-sans">
+    <html lang="en" data-color="teal" suppressHydrationWarning>
+      <head>
+        <ThemeInit />
+      </head>
+      <body className="lio-app min-h-screen font-sans text-base">
         <ThemeProvider>
-          <SmoothScrollProvider>
-            <PageBackground />
-            <AuthProvider>
-              <Navbar />
-              <main>{children}</main>
-            </AuthProvider>
-          </SmoothScrollProvider>
+          <SmoothScrollInit />
+          <Tilt3DEnhancer />
+          <PageBackground />
+          <AuthProvider>
+            <Navbar />
+            <main className="min-h-[50vh] opacity-100">{children}</main>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

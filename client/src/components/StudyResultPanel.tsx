@@ -11,6 +11,8 @@ import { VoiceTutorControls } from "./VoiceTutorControls";
 import { VivaPanel } from "./VivaPanel";
 import { McqQuiz } from "./McqQuiz";
 import { Badge } from "./ui/Badge";
+import { BackLink } from "./ui/BackLink";
+import { downloadAuthenticatedFile } from "@/lib/downloadFile";
 import { getMaterialTypeLabel } from "@/lib/materialLabels";
 
 const API_BASE =
@@ -22,13 +24,16 @@ export function StudyResultPanel({
   material,
   vivaSession,
   onUpdate,
+  onBack,
 }: {
   material: StudyMaterial;
   vivaSession?: VivaSession;
   onUpdate?: (m: StudyMaterial) => void;
+  onBack?: () => void;
 }) {
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState<DownloadFormat | null>(null);
+  const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
   const [saved, setSaved] = useState(material.savedToLibrary);
   const [copied, setCopied] = useState(false);
 
@@ -88,22 +93,16 @@ export function StudyResultPanel({
     setDownloading(format);
     try {
       const token = localStorage.getItem("ssc_token");
-      const res = await fetch(
-        `${API_BASE}/study/materials/${material._id}/download?format=${format}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Download failed");
-      }
-      const blob = await res.blob();
+      if (!token) throw new Error("Please sign in again to download files.");
+
       const ext = format === "docx" ? "docx" : "pdf";
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${material.title.replace(/[^a-z0-9]/gi, "_")}.${ext}`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const fallback = `${material.title.replace(/[^a-z0-9._-]+/gi, "_")}.${ext}`;
+
+      await downloadAuthenticatedFile(
+        `${API_BASE}/study/materials/${material._id}/download?format=${format}`,
+        token,
+        fallback
+      );
     } catch (e) {
       alert(e instanceof Error ? e.message : "Download failed");
     } finally {
@@ -113,13 +112,29 @@ export function StudyResultPanel({
 
   return (
     <div className="result-panel">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200/80 pb-4 dark:border-slate-700/80">
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <Badge variant="info">
-            {getMaterialTypeLabel(material.type, material.metadata?.mixMode)}
-          </Badge>
-          <h3 className="font-semibold leading-snug text-fg">{material.title}</h3>
-        </div>
+      <div className="space-y-3 border-b border-slate-200/80 pb-4 dark:border-slate-700/80">
+        {onBack && <BackLink onClick={onBack} label="Back to tools" />}
+        <Badge variant="info">
+          {getMaterialTypeLabel(material.type, material.metadata?.mixMode)}
+        </Badge>
+        <h3
+          className="truncate font-semibold text-fg [text-wrap:nowrap]"
+          title={material.title}
+        >
+          {material.title}
+        </h3>
+        {downloadNotice && (
+          <p
+            className={`text-sm ${
+              downloadNotice.includes("saved")
+                ? "text-brand-700 dark:text-brand-300"
+                : "text-danger"
+            }`}
+            role="status"
+          >
+            {downloadNotice}
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={saveToLibrary} disabled={saving || saved} className="btn-secondary !py-2 !text-xs">
             {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bookmark className="h-3 w-3" />}

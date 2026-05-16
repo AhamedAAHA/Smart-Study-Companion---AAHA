@@ -66,9 +66,9 @@ export function LandingPage() {
                     <span className="text-gradient block">Upload your lecture slides</span>
                     <span className="hero-subline mt-4 block text-lg font-medium text-fg-on-surface-strong sm:text-xl">
                       and learn with AI in{" "}
-                      <span className="hero-chip">English</span>,{" "}
-                      <span className="hero-chip hero-chip-tamil">Tamil</span>,{" "}
-                      <span className="hero-chip">Sinhala</span>, or{" "}
+                      <span className="hero-chip">English</span>{" "}
+                      <span className="hero-chip hero-chip-tamil">Tamil</span>{" "}
+                      <span className="hero-chip">Sinhala</span> or{" "}
                       <span className="hero-chip hero-chip-voice">voice mode</span>
                     </span>
                   </h1>
@@ -88,7 +88,7 @@ export function LandingPage() {
                     Start free
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
-                  <Link href="/login" className="btn-secondary gap-2 !px-6 !py-3">
+                  <Link href="/demo" className="btn-secondary gap-2 !px-6 !py-3">
                     <Play className="h-4 w-4" />
                     Watch demo
                   </Link>
@@ -134,16 +134,29 @@ export function LandingPage() {
 
           <ul className="landing-feature-grid">
             {features.map((f, i) => (
-              <li key={f.title}>
-                <FadeIn delay={i * 0.06}>
+              <li key={f.title} className="h-full">
+                <FadeIn delay={i * 0.06} className="h-full">
                   <article className="landing-feature-card card-interactive group h-full">
-                    <span className="landing-feature-icon">
-                      <f.icon className="h-6 w-6 text-brand-600 dark:text-brand-400" />
-                    </span>
-                    <h3 className="mt-5 text-base font-semibold text-fg">{f.title}</h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-fg-muted">
-                      {f.desc}
-                    </p>
+                    <div className="widget-card-header">
+                      <span className="widget-card-icon" aria-hidden>
+                        <f.icon className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+                      </span>
+                      <span className="status-dot status-dot-live" title="Available" />
+                    </div>
+                    <div className="widget-card-body">
+                      <h3 className="text-base font-semibold text-fg">{f.title}</h3>
+                      <p className="text-sm leading-relaxed text-fg-muted">{f.desc}</p>
+                    </div>
+                    <footer className="widget-card-footer">
+                      <ul className="widget-tags">
+                        <li>
+                          <span className="pill-tag">Study</span>
+                        </li>
+                        <li>
+                          <span className="pill-tag">AI</span>
+                        </li>
+                      </ul>
+                    </footer>
                   </article>
                 </FadeIn>
               </li>

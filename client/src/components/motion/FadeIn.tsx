@@ -2,10 +2,6 @@
 
 import { useEffect, useRef, ReactNode } from "react";
 import clsx from "clsx";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 type FadeInProps = {
   children: ReactNode;
@@ -28,7 +24,7 @@ export function FadeIn({
   className,
   delay = 0,
   direction = "up",
-  duration = 0.65,
+  duration = 0.7,
 }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -40,38 +36,49 @@ export function FadeIn({
       return;
     }
 
-    const { x, y } = offsets[direction];
+    let cancelled = false;
+    let ctx: { revert: () => void } | undefined;
 
-    const ctx = gsap.context(() => {
-      gsap.from(el, {
-        opacity: 0,
-        x,
-        y,
-        duration,
-        delay,
-        ease: "power3.out",
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: el,
-          start: "top 88%",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
-    }, el);
+    void (async () => {
+      const { default: gsap } = await import("gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      gsap.registerPlugin(ScrollTrigger);
 
-    const fallback = window.setTimeout(() => {
-      gsap.set(el, { opacity: 1, x: 0, y: 0 });
-    }, 2500);
+      if (cancelled || !ref.current) return;
+
+      const { x, y } = offsets[direction];
+
+      ctx = gsap.context(() => {
+        gsap.fromTo(
+          el,
+          { autoAlpha: 0, x, y, immediateRender: false },
+          {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            duration,
+            delay,
+            ease: "power3.out",
+            immediateRender: false,
+            scrollTrigger: {
+              trigger: el,
+              start: "top 90%",
+              toggleActions: "play none none none",
+              once: true,
+            },
+          }
+        );
+      }, el);
+    })();
 
     return () => {
-      window.clearTimeout(fallback);
-      ctx.revert();
+      cancelled = true;
+      ctx?.revert();
     };
   }, [delay, direction, duration]);
 
   return (
-    <div ref={ref} className={clsx(className)}>
+    <div ref={ref} className={clsx("scroll-reveal opacity-100", className)}>
       {children}
     </div>
   );
