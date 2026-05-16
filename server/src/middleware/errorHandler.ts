@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { applyCorsHeaders } from "../config/cors";
 import { env } from "../config/env";
 
 export class AppError extends Error {
@@ -12,7 +13,7 @@ export class AppError extends Error {
 
 export function errorHandler(
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void {
@@ -22,19 +23,33 @@ export function errorHandler(
       ? err.message
       : null;
 
+  const validationMessage =
+    err.name === "ValidationError"
+      ? Object.values(
+          (err as { errors?: Record<string, { message?: string }> }).errors ||
+            {}
+        )[0]?.message
+      : null;
+
   const status = err instanceof AppError
     ? err.statusCode
-    : multerMessage
+    : multerMessage || validationMessage
       ? 400
       : 500;
   const message =
-    err instanceof AppError || multerMessage || !env.isProduction
-      ? multerMessage || err.message
+    err instanceof AppError ||
+    multerMessage ||
+    validationMessage ||
+    !env.isProduction
+      ? multerMessage || validationMessage || err.message
       : "Internal server error";
 
   if (status >= 500) {
     console.error(err);
   }
 
+  applyCorsHeaders(req.headers.origin, (name, value) =>
+    res.setHeader(name, value)
+  );
   res.status(status).json({ success: false, message });
 }

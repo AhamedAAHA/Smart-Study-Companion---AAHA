@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { connectDatabase } from "./config/db";
 import { env } from "./config/env";
+import { applyCorsHeaders, isAllowedOrigin } from "./config/cors";
 import { errorHandler } from "./middleware/errorHandler";
 
 import authRoutes from "./routes/auth.routes";
@@ -19,14 +20,7 @@ app.use(
   cors({
     origin(origin, callback) {
       if (!origin) return callback(null, true);
-      const normalized = origin.replace(/\/$/, "");
-      if (env.clientOrigins.includes(normalized)) return callback(null, true);
-      if (
-        !env.isProduction &&
-        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
-      ) {
-        return callback(null, true);
-      }
+      if (isAllowedOrigin(origin)) return callback(null, true);
       console.warn(`CORS blocked origin: ${origin}`);
       callback(null, false);
     },
@@ -34,6 +28,11 @@ app.use(
     exposedHeaders: ["Content-Disposition", "Content-Type", "Content-Length"],
   })
 );
+
+app.use((req, res, next) => {
+  applyCorsHeaders(req.headers.origin, (name, value) => res.setHeader(name, value));
+  next();
+});
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -63,6 +62,8 @@ async function start() {
   await connectDatabase();
   app.listen(env.port, () => {
     console.log(`Server running on http://localhost:${env.port}`);
+    console.log(`CORS allowed origins: ${env.clientOrigins.join(", ")}`);
+    if (env.isProduction) console.log("CORS: all *.netlify.app origins allowed");
     console.log(
       `ElevenLabs: ${isElevenLabsConfigured() ? "configured" : "not configured (browser voice fallback)"}`
     );
