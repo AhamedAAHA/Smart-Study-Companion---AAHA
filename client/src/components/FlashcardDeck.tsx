@@ -45,7 +45,7 @@ export function FlashcardDeck({
   return (
     <div className="card">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold">Flashcards</h3>
+        <h3 className="font-semibold text-fg">Flashcards</h3>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -56,13 +56,15 @@ export function FlashcardDeck({
               setShowModel(false);
             }}
             className={`rounded-lg px-2 py-1 text-xs font-medium ${
-              quizMode ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600"
+              quizMode
+                ? "bg-violet-600 text-white"
+                : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-200"
             }`}
           >
             <Brain className="mr-1 inline h-3 w-3" />
             Quiz mode
           </button>
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-fg-muted">
             {index + 1} / {cards.length}
           </span>
         </div>
@@ -70,8 +72,8 @@ export function FlashcardDeck({
 
       {quizMode ? (
         <div className="min-h-[180px] rounded-xl border border-violet-200 bg-violet-50/50 p-6 dark:border-violet-800 dark:bg-violet-950/30">
-          <p className="text-xs font-semibold uppercase text-violet-600">Question</p>
-          <p className="mt-2 text-lg font-medium">{card.question}</p>
+          <p className="text-xs font-semibold uppercase text-violet-600 dark:text-violet-400">Question</p>
+          <p className="mt-2 text-lg font-medium text-fg">{card.question}</p>
           <textarea
             className="input mt-4 min-h-[80px]"
             placeholder="Type your answer..."
@@ -86,8 +88,8 @@ export function FlashcardDeck({
             Check answer
           </button>
           {showModel && (
-            <div className="mt-3 rounded-lg bg-white p-3 text-sm dark:bg-slate-800">
-              <p className="font-medium text-green-700">Model answer:</p>
+            <div className="mt-3 rounded-lg bg-white p-3 text-sm text-fg-secondary dark:bg-slate-800">
+              <p className="font-medium text-green-700 dark:text-green-400">Model answer:</p>
               <p className="mt-1">{card.answer}</p>
             </div>
           )}
@@ -98,13 +100,13 @@ export function FlashcardDeck({
           onClick={() => setFlipped(!flipped)}
           className="min-h-[180px] w-full rounded-xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-6 text-left shadow-sm transition hover:shadow-md dark:from-brand-950/40 dark:to-slate-900"
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">
             {flipped ? "Answer" : "Question"}
           </p>
-          <p className="mt-3 text-lg font-medium text-slate-800 dark:text-slate-100">
+          <p className="mt-3 text-lg font-medium text-fg">
             {flipped ? card.answer : card.question}
           </p>
-          <p className="mt-4 text-xs text-slate-400">Tap to flip</p>
+          <p className="mt-4 text-xs text-fg-muted">Tap to flip</p>
         </button>
       )}
 
@@ -143,7 +145,7 @@ export function FlashcardDeck({
           className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium ${
             card.completed
               ? "bg-green-100 text-green-800"
-              : "bg-slate-100 text-slate-700 hover:bg-green-50"
+              : "bg-slate-100 text-slate-700 hover:bg-green-50 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-green-900/30"
           }`}
         >
           <Check className="h-4 w-4" />

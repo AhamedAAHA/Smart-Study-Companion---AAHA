@@ -46,38 +46,38 @@ export function VivaPanel({
     <div className="card">
       <div className="mb-4 flex items-center gap-2">
         <MessageCircle className="h-5 w-5 text-indigo-600" />
-        <h3 className="font-semibold">{session.title}</h3>
+        <h3 className="font-semibold text-fg">{session.title}</h3>
       </div>
 
       {lastAnswered?.feedback && (
-        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-          <p className="text-xs font-semibold text-indigo-700">Feedback</p>
-          <p className="mt-1 text-sm text-indigo-900">{lastAnswered.feedback}</p>
+        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800/50 dark:bg-indigo-950/40">
+          <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Feedback</p>
+          <p className="mt-1 text-sm text-indigo-900 dark:text-indigo-100">{lastAnswered.feedback}</p>
           {lastAnswered.score != null && (
-            <p className="mt-1 text-xs text-indigo-600">Score: {lastAnswered.score}/10</p>
+            <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">Score: {lastAnswered.score}/10</p>
           )}
         </div>
       )}
 
       {isDone ? (
-        <div className="rounded-xl bg-green-50 p-6 text-center">
-          <Trophy className="mx-auto h-10 w-10 text-green-600" />
-          <p className="mt-2 font-semibold text-green-900">Viva complete!</p>
-          <p className="mt-2 text-sm text-green-800">{session.overallFeedback}</p>
+        <div className="rounded-xl bg-green-50 p-6 text-center dark:bg-green-950/40">
+          <Trophy className="mx-auto h-10 w-10 text-green-600 dark:text-green-400" />
+          <p className="mt-2 font-semibold text-green-900 dark:text-green-200">Viva complete!</p>
+          <p className="mt-2 text-sm text-green-800 dark:text-green-300">{session.overallFeedback}</p>
         </div>
       ) : current ? (
         <>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-sm font-medium text-fg-muted">
             Question {session.currentIndex + 1} of {session.questions.length}
           </p>
-          <p className="mt-2 text-lg font-medium text-slate-900">{current.question}</p>
+          <p className="mt-2 text-lg font-medium text-fg">{current.question}</p>
           <textarea
             className="input mt-4 min-h-[100px]"
             placeholder="Type your answer (or use speech-to-text on your device)..."
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
           />
-          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
           <button
             type="button"
             onClick={submit}
@@ -92,7 +92,7 @@ export function VivaPanel({
 
       <Link
         href={`/viva/${session._id}`}
-        className="mt-4 inline-block text-sm text-brand-600 hover:underline"
+        className="mt-4 inline-block text-sm text-brand-600 hover:underline dark:text-brand-400"
       >
         Open full viva session →
       </Link>

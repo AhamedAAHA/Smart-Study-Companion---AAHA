@@ -35,3 +35,30 @@ export const uploadLecture = multer({
     }
   },
 });
+
+const doubtAudioMimes = [
+  "audio/webm",
+  "audio/ogg",
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/mp4",
+  "audio/m4a",
+  "video/webm",
+];
+
+export const uploadDoubtAudio = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (
+      doubtAudioMimes.includes(file.mimetype) ||
+      file.mimetype.startsWith("audio/")
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only audio recordings are allowed for voice doubts"));
+    }
+  },
+});

@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
+import { PageBackground } from "@/components/PageBackground";
+import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,13 +29,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${literata.variable}`}>
-      <body className="min-h-screen font-sans">
+    <html
+      lang="en"
+      data-color="teal"
+      className={`dark ${inter.variable} ${literata.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="lio-app min-h-screen font-sans">
         <ThemeProvider>
-          <AuthProvider>
-            <Navbar />
-            <main>{children}</main>
-          </AuthProvider>
+          <SmoothScrollProvider>
+            <PageBackground />
+            <AuthProvider>
+              <Navbar />
+              <main>{children}</main>
+            </AuthProvider>
+          </SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -54,8 +54,8 @@ function AdminContent() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold">Admin Panel</h1>
-      <p className="text-slate-600">System usage, users, and content safety</p>
+      <h1 className="font-display text-2xl font-bold text-fg">Admin Panel</h1>
+      <p className="text-fg-subtle">System usage, users, and content safety</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Metric label="Students" value={stats.users.students} />
@@ -68,22 +68,22 @@ function AdminContent() {
       </div>
 
       <section className="mt-10 card">
-        <h2 className="font-semibold">Most used subjects</h2>
+        <h2 className="font-semibold text-fg">Most used subjects</h2>
         <ul className="mt-3 space-y-1 text-sm">
           {stats.subjectUsage.map((s) => (
             <li key={s._id} className="flex justify-between">
               <span>{s._id}</span>
-              <span className="text-slate-500">{s.count} uploads</span>
+              <span className="text-fg-muted">{s.count} uploads</span>
             </li>
           ))}
         </ul>
       </section>
 
       <section className="mt-10 card overflow-x-auto">
-        <h2 className="mb-4 font-semibold">Manage users</h2>
-        <table className="w-full text-left text-sm">
+        <h2 className="mb-4 font-semibold text-fg">Manage users</h2>
+        <table className="w-full text-left text-sm text-fg-secondary">
           <thead>
-            <tr className="border-b text-slate-500">
+            <tr className="border-b border-slate-200 text-fg-muted dark:border-slate-700">
               <th className="py-2">Name</th>
               <th>Email</th>
               <th>Role</th>
@@ -94,7 +94,7 @@ function AdminContent() {
             {users.map((u) => {
               const id = u.id || (u as User & { _id?: string })._id || "";
               return (
-              <tr key={id} className="border-b border-slate-100">
+              <tr key={id} className="border-b border-slate-100 dark:border-slate-700">
                 <td className="py-2">{u.name}</td>
                 <td>{u.email}</td>
                 <td className="capitalize">{u.role}</td>
@@ -120,8 +120,8 @@ function AdminContent() {
 function Metric({ label, value }: { label: string; value: number }) {
   return (
     <div className="card">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-2xl font-bold text-brand-800">{value}</p>
+      <p className="text-xs text-fg-muted">{label}</p>
+      <p className="text-2xl font-bold text-brand-800 dark:text-brand-300">{value}</p>
     </div>
   );
 }

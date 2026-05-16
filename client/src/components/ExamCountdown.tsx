@@ -42,7 +42,7 @@ export function ExamCountdown({
     <div className="card border-accent-200 bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-slate-900">
       <div className="mb-3 flex items-center gap-2">
         <Calendar className="h-5 w-5 text-accent-600" />
-        <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        <h3 className="font-semibold text-fg">
           Exam / Viva countdown
         </h3>
       </div>
@@ -52,7 +52,7 @@ export function ExamCountdown({
           <p className="text-3xl font-bold text-brand-700 dark:text-brand-300">
             {daysLeft > 0 ? daysLeft : daysLeft === 0 ? "Today!" : "Passed"}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-fg-muted">
             {daysLeft > 0 ? "days until" : ""} {title || "your exam"}
           </p>
         </div>

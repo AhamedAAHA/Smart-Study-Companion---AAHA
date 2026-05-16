@@ -1,16 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, LogOut, LayoutDashboard, Moon, Sun } from "lucide-react";
+import { BookOpen, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { useAuth } from "./AuthProvider";
-import { useTheme } from "./ThemeProvider";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import clsx from "clsx";
 
 export function Navbar() {
   const { user, logout } = useAuth();
-  const { theme, toggle } = useTheme();
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const dashboardHref =
     user?.role === "admin"
@@ -19,85 +20,122 @@ export function Navbar() {
         ? "/lecturer"
         : "/dashboard";
 
+  const navLinkClass = (active: boolean) =>
+    clsx(
+      "rounded-full px-3 py-2 text-sm font-medium transition-all",
+      active
+        ? "bg-brand-100 text-brand-900 dark:bg-white/10 dark:text-white"
+        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-white/55 dark:hover:bg-white/5 dark:hover:text-white"
+    );
+
+  const dashboardActive =
+    pathname.includes("dashboard") ||
+    pathname.includes("admin") ||
+    pathname.includes("lecturer");
+
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/90">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link href={user ? dashboardHref : "/"} className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white">
+    <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6">
+      <nav
+        className="glass-nav mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-5"
+        aria-label="Main navigation"
+      >
+        <Link
+          href="/"
+          className="group flex min-w-0 flex-1 items-center gap-2.5 sm:flex-initial sm:max-w-[min(100%,20rem)]"
+          onClick={() => setMobileOpen(false)}
+          aria-label="Smart Study Companion home"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-lg shadow-brand-500/30 transition-transform duration-300 group-hover:rotate-6">
             <BookOpen className="h-5 w-5" />
           </span>
-          <span className="font-display text-lg font-bold text-brand-900 dark:text-brand-100">
+          <span className="truncate font-display text-base font-bold text-fg-on-surface-strong sm:text-lg">
             Smart Study Companion
           </span>
         </Link>
 
-        <nav className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={toggle}
-            className="btn-secondary !p-2"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
+        <div className="nav-actions">
+          <ThemeSwitcher />
+
           {user ? (
             <>
-              <Link
-                href={dashboardHref}
-                className={clsx(
-                  "hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium sm:flex",
-                  pathname.includes("dashboard") ||
-                    pathname.includes("admin") ||
-                    pathname.includes("lecturer")
-                    ? "bg-brand-50 text-brand-800"
-                    : "text-slate-600 hover:bg-slate-100"
-                )}
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
-              {user.role === "student" && (
+              <nav className="nav-links hidden md:flex" aria-label="Account">
                 <Link
-                  href="/library"
-                  className={clsx(
-                    "hidden rounded-lg px-3 py-2 text-sm font-medium sm:block",
-                    pathname === "/library"
-                      ? "bg-brand-50 text-brand-800"
-                      : "text-slate-600 hover:bg-slate-100"
-                  )}
+                  href={dashboardHref}
+                  className={clsx("flex items-center gap-1.5", navLinkClass(dashboardActive))}
                 >
-                  Library
+                  <LayoutDashboard className="h-4 w-4 shrink-0" />
+                  Dashboard
                 </Link>
-              )}
-              <span className="hidden text-sm text-slate-500 md:inline">
+                {user.role === "student" && (
+                  <Link
+                    href="/library"
+                    className={navLinkClass(pathname === "/library")}
+                  >
+                    Library
+                  </Link>
+                )}
+              </nav>
+
+              <span className="nav-divider" aria-hidden />
+
+              <span className="nav-user" title={user.name}>
                 {user.name}
               </span>
+
               <button
                 type="button"
                 onClick={logout}
-                className="btn-secondary !py-2 !px-3"
+                className="btn-secondary !rounded-full !px-3 !py-2"
                 aria-label="Logout"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 shrink-0" />
                 <span className="hidden sm:inline">Logout</span>
+              </button>
+
+              <button
+                type="button"
+                className="rounded-full p-2 text-fg-muted transition hover:bg-slate-100 dark:hover:bg-white/10 md:hidden"
+                onClick={() => setMobileOpen((o) => !o)}
+                aria-expanded={mobileOpen}
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              >
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="btn-secondary !py-2">
+              <Link href="/login" className="btn-secondary !rounded-full !py-2 !text-sm">
                 Login
               </Link>
-              <Link href="/signup" className="btn-primary !py-2">
+              <Link href="/signup" className="btn-primary !rounded-full !py-2 !text-sm">
                 Sign Up
               </Link>
             </>
           )}
-        </nav>
-      </div>
+        </div>
+      </nav>
+
+      {user && mobileOpen && (
+        <div className="glass-nav mx-auto mt-2 flex max-w-6xl flex-col gap-1 px-3 py-3 md:hidden">
+          <Link
+            href={dashboardHref}
+            className={navLinkClass(dashboardActive)}
+            onClick={() => setMobileOpen(false)}
+          >
+            Dashboard
+          </Link>
+          {user.role === "student" && (
+            <Link
+              href="/library"
+              className={navLinkClass(pathname === "/library")}
+              onClick={() => setMobileOpen(false)}
+            >
+              Library
+            </Link>
+          )}
+          <p className="px-3 py-2 text-sm text-fg-muted">{user.name}</p>
+        </div>
+      )}
     </header>
   );
 }

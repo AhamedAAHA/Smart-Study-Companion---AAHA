@@ -1,7 +1,13 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export type UserRole = "student" | "lecturer" | "admin";
-export type PreferredLanguage = "english" | "tamil" | "both";
+export type PreferredLanguage =
+  | "english"
+  | "tamil"
+  | "both"
+  | "tamil_english"
+  | "sinhala_english"
+  | "student_lk";
 
 export interface IUser extends Document {
   name: string;
@@ -32,7 +38,14 @@ const userSchema = new Schema<IUser>(
     course: { type: String, trim: true },
     preferredLanguage: {
       type: String,
-      enum: ["english", "tamil", "both"],
+      enum: [
+        "english",
+        "tamil",
+        "both",
+        "tamil_english",
+        "sinhala_english",
+        "student_lk",
+      ],
       default: "english",
     },
     examTitle: { type: String, trim: true },

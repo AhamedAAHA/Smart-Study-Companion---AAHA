@@ -17,7 +17,15 @@ function ensureOpenAI(): OpenAI {
   return openai;
 }
 
-async function chat(system: string, user: string): Promise<string> {
+export function isOpenAIConfigured(): boolean {
+  return Boolean(openai);
+}
+
+export async function chat(
+  system: string,
+  user: string,
+  opts?: { maxTokens?: number; temperature?: number }
+): Promise<string> {
   const client = ensureOpenAI();
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
@@ -25,7 +33,8 @@ async function chat(system: string, user: string): Promise<string> {
       { role: "system", content: system },
       { role: "user", content: user },
     ],
-    temperature: 0.7,
+    temperature: opts?.temperature ?? 0.7,
+    max_tokens: opts?.maxTokens,
   });
 
   const content = response.choices[0]?.message?.content;
@@ -41,10 +50,147 @@ export async function generateCheatSheet(
   documentText: string,
   title: string
 ): Promise<string> {
-  return chat(
-    `You are an expert tutor for Sri Lankan university students. Create concise, exam-focused cheat sheets with clear headings, definitions, key points, and short examples. Use markdown formatting.`,
-    `Create a cheat sheet from this lecture material titled "${title}":\n\n${truncateSource(documentText)}`
-  );
+  if (!openai) {
+    return demoCheatSheet(title);
+  }
+
+  try {
+    return await chat(
+      `You are an expert tutor for Sri Lankan university students. Create concise, exam-focused cheat sheets with clear headings, definitions, key points, and short examples. Use markdown formatting. Always produce substantial content (at least 8 sections or bullet groups).`,
+      `Create a cheat sheet from this lecture material titled "${title}":\n\n${truncateSource(documentText)}`
+    );
+  } catch {
+    return demoCheatSheet(title);
+  }
+}
+
+export type SriLankanMixMode =
+  | "tamil_english"
+  | "sinhala_english"
+  | "student_lk";
+
+export type ExplanationStyle =
+  | "english"
+  | "tamil"
+  | "both"
+  | SriLankanMixMode;
+
+export type VoiceRefineMode =
+  | "simpler"
+  | "real_life"
+  | "tamil"
+  | "tamil_english"
+  | "sinhala_english"
+  | "student_lk"
+  | "slow"
+  | "repeat";
+
+const SRI_LANKAN_MIX_GUIDES: Record<SriLankanMixMode, string> = {
+  tamil_english: `Use natural Tamil–English mix like Sri Lankan university students in tutorials.
+- Keep technical terms in English (semaphore, process, thread, mutex, etc.)
+- Use spoken Tamil flow with words like "na", "oru", "thaan", "appuram", "actually", "basically"
+- Example tone: "Semaphore na basically oru resource access control system."
+- NOT formal literary Tamil or word-for-word translation from English`,
+  sinhala_english: `Use natural Sinhala–English mix like Sri Lankan university students.
+- Keep technical terms in English
+- Write Sinhala parts in romanized Sinhala so students can read easily
+- Friendly tutorial tone; example vibe: "Semaphore eka basically resource access control system ekak."
+- NOT formal-only Sinhala or direct translation`,
+  student_lk: `Use simple Sri Lankan student English — how local undergraduates explain to friends before exams.
+- Clear, casual, exam-focused; avoid stiff international textbook tone
+- Light local flavor is OK; stay mostly in English
+- Example vibe: "Semaphore is basically — resource access control system, very simple."`,
+};
+
+export function explanationStyleGuide(style: ExplanationStyle): string {
+  if (style === "tamil_english" || style === "sinhala_english" || style === "student_lk") {
+    return SRI_LANKAN_MIX_GUIDES[style];
+  }
+  if (style === "tamil") {
+    return "Answer mainly in simple Tamil with English technical terms (Tamil-English mix).";
+  }
+  if (style === "english") {
+    return "Answer in clear English suitable for Sri Lankan university students.";
+  }
+  return "Answer in English with key points also explained simply in Tamil where helpful.";
+}
+
+const VOICE_REFINE_INSTRUCTIONS: Record<VoiceRefineMode, string> = {
+  simpler:
+    "Explain in simpler words for a student who is confused. Use short sentences, define jargon, and avoid heavy theory.",
+  real_life:
+    "Explain using a clear real-life analogy or everyday example that a Sri Lankan university student can remember.",
+  tamil:
+    "Explain mainly in simple Tamil with English technical terms (Tamil-English mix), like a friendly lecturer speaking aloud.",
+  tamil_english: SRI_LANKAN_MIX_GUIDES.tamil_english,
+  sinhala_english: SRI_LANKAN_MIX_GUIDES.sinhala_english,
+  student_lk: SRI_LANKAN_MIX_GUIDES.student_lk,
+  slow:
+    "Explain very slowly and clearly for spoken audio: short steps, one idea per sentence, use commas for natural pauses.",
+  repeat:
+    "Repeat only the single most important point from the lecture. Make it memorable and exam-focused (about 60-90 seconds when read aloud).",
+};
+
+function normalizeVoiceRefineMode(mode: VoiceRefineMode): VoiceRefineMode {
+  return mode === "tamil" ? "tamil_english" : mode;
+}
+
+export async function refineVoiceExplanation(
+  documentText: string,
+  title: string,
+  previousExplanation: string,
+  mode: VoiceRefineMode
+): Promise<string> {
+  const normalized = normalizeVoiceRefineMode(mode);
+  const instruction = VOICE_REFINE_INSTRUCTIONS[normalized];
+
+  if (!openai) {
+    return demoVoiceRefinement(title, mode, previousExplanation);
+  }
+
+  try {
+    return await chat(
+      `You are a live voice tutor for Sri Lankan university students. The student is listening and tapped a button to change how you explain. Write markdown suitable for text-to-speech: no tables, no code blocks, conversational and warm. Keep it speakable in 1-3 minutes.`,
+      `Lecture: "${title}"
+
+Previous explanation:
+${previousExplanation.slice(0, 5000)}
+
+Student request: ${instruction}
+
+Use the lecture notes when helpful:
+${truncateSource(documentText, 8000)}`
+    );
+  } catch {
+    return demoVoiceRefinement(title, mode, previousExplanation);
+  }
+}
+
+export function demoVoiceRefinement(
+  title: string,
+  mode: VoiceRefineMode,
+  previous: string
+): string {
+  const snippet = previous.slice(0, 200).replace(/[#*_`]/g, "");
+  const labels: Record<VoiceRefineMode, string> = {
+    simpler: "Simpler explanation",
+    real_life: "Real-life example",
+    tamil: "Tamil explanation",
+    tamil_english: "Tamil–English mix",
+    sinhala_english: "Sinhala–English mix",
+    student_lk: "Sri Lankan student style",
+    slow: "Slow, clear explanation",
+    repeat: "Key point repeated",
+  };
+  return `## ${labels[mode]}: ${title}
+
+${snippet}${snippet.length >= 200 ? "…" : ""}
+
+This is a demo tutor response. Add **OPENAI_API_KEY** to your server \`.env\` for dynamic voice tutoring.
+
+- Listen to the main ideas from your slides
+- Try explaining them aloud in your own words
+- Use the other tutor buttons to change style once AI is connected`;
 }
 
 export async function generateFlashcards(
@@ -69,6 +215,48 @@ export async function generateFlashcards(
   }
 }
 
+export type DoubtLanguage = ExplanationStyle;
+
+export async function generateDoubtExplanation(
+  documentText: string,
+  title: string,
+  doubt: string,
+  language: DoubtLanguage = "both"
+): Promise<string> {
+  const langGuide = explanationStyleGuide(language);
+
+  return chat(
+    `You are a patient tutor for Sri Lankan university students answering one specific doubt about lecture notes.
+${langGuide}
+Use markdown: short heading, **Your doubt** (restate question), **Explanation** (concise steps + lecture examples), **Quick recap** (2-3 bullets). Stay focused; do not repeat the full lecture.`,
+    `Lecture: "${title}"
+
+Student's doubt:
+${doubt.trim()}
+
+Relevant lecture excerpts:
+${truncateSource(documentText, 5000)}`,
+    { maxTokens: 1000, temperature: 0.5 }
+  );
+}
+
+export function demoDoubtExplanation(title: string, doubt: string): string {
+  return `# Doubt answered: ${title}
+
+## Your doubt
+${doubt.trim()}
+
+## Explanation
+This is a demo response. Connect **OPENAI_API_KEY** in server \`.env\` for a full AI explanation based on your uploaded slides.
+
+Review the relevant section in your lecture notes and try explaining the idea aloud in your own words.
+
+## Quick recap
+- Re-read the related slide or note section
+- Write one definition and one example
+- Ask your lecturer if anything is still unclear`;
+}
+
 export async function generateTamilExplanation(
   documentText: string,
   title: string,
@@ -82,6 +270,91 @@ export async function generateTamilExplanation(
     `You are a bilingual educator for Sri Lankan students. ${style}`,
     `Explain the key topics from "${title}":\n\n${truncateSource(documentText)}`
   );
+}
+
+export function localizedExplanationTitle(
+  title: string,
+  mode: SriLankanMixMode
+): string {
+  const labels: Record<SriLankanMixMode, string> = {
+    tamil_english: "Tamil–English mix",
+    sinhala_english: "Sinhala–English mix",
+    student_lk: "Sri Lankan student style",
+  };
+  return `${labels[mode]}: ${title}`;
+}
+
+export async function generateSriLankanMixExplanation(
+  documentText: string,
+  title: string,
+  mode: SriLankanMixMode
+): Promise<string> {
+  const guide = SRI_LANKAN_MIX_GUIDES[mode];
+
+  if (!openai) {
+    return demoSriLankanMixExplanation(title, mode);
+  }
+
+  try {
+    return await chat(
+      `You are a tutor for Sri Lankan university students. Students learn in mixed language naturally — mirror how they speak in tutorials, not textbook translation.
+
+${guide}
+
+Use markdown: clear headings, bullet points, short examples. Include at least one quoted example line in the target mixed style. Be exam-focused and encouraging.`,
+      `Explain the key topics from the lecture "${title}" for revision:\n\n${truncateSource(documentText)}`
+    );
+  } catch {
+    return demoSriLankanMixExplanation(title, mode);
+  }
+}
+
+export function demoSriLankanMixExplanation(
+  title: string,
+  mode: SriLankanMixMode
+): string {
+  const samples: Record<SriLankanMixMode, string> = {
+    tamil_english: `## ${title} — Tamil style
+
+**Example line:** "Semaphore na basically oru resource access control system."
+
+### Main idea
+- Lecture slides la irukura core concepts ah step-by-step parunga
+- Technical terms English la vechukonga — exam la adhu dhaan matter
+
+### Quick recap
+- Oru concept = oru definition + oru example
+- Friend kitta explain pannunga — mix language natural ah varum
+
+*Add OPENAI_API_KEY for full AI Tamil explanations from your PDF.*`,
+    sinhala_english: `## ${title} — Sinhala style
+
+**Example line:** "Semaphore eka basically resource access control system ekak."
+
+### Main idea
+- Lecture eke main points tika step-by-step balanna
+- Technical terms English walin thiyaganna — exam eke important
+
+### Quick recap
+- Concept ekak = definition ekak + example ekak
+- Friend kenek ta explain karanna — mix language natural
+
+*Add OPENAI_API_KEY for full AI Sinhala explanations from your PDF.*`,
+    student_lk: `## ${title} — Sri Lankan student style
+
+**Example line:** "Semaphore is basically — resource access control system, very simple."
+
+### Main idea
+- Read your slides once, then explain each heading aloud in your own words
+- Keep definitions short; add one local or lecture example
+
+### Quick recap
+- Don't memorize word-for-word — understand the flow
+- Practice 2-minute answers before viva
+
+*Add OPENAI_API_KEY for full AI explanations in student LK style.*`,
+  };
+  return samples[mode];
 }
 
 export async function generateVivaQuestions(
@@ -143,7 +416,28 @@ export async function summarizeForLecturer(
 
 /** Demo fallback when OpenAI is not configured */
 export function demoCheatSheet(title: string): string {
-  return `# ${title} — Cheat Sheet\n\n## Key Concepts\n- Review definitions from your uploaded slides\n- Focus on exam-style short answers\n\n## Tips\n- Practice explaining each topic aloud\n- Link theory to real examples from lectures\n\n*Connect OPENAI_API_KEY for AI-generated content.*`;
+  return `# ${title} — Cheat Sheet
+
+## Overview
+- Core themes from your uploaded lecture material
+- Definitions, processes, and exam-style facts
+
+## Key concepts
+1. Identify the main topic of each slide or section
+2. Write one-line definitions for every bold term
+3. Note cause → effect chains and diagrams
+
+## Exam tips
+- Practice 2-minute spoken answers per topic
+- Link theory to one real example from the lecture
+- Revise weak areas with flashcards and mock viva
+
+## Quick checklist
+- [ ] Read all slide headings
+- [ ] Memorize 10 key terms
+- [ ] Explain the hardest topic aloud twice
+
+*For a full AI cheat sheet from your PDF, add \`OPENAI_API_KEY\` to \`server/.env\` and restart the server.*`;
 }
 
 export interface McqQuestion {

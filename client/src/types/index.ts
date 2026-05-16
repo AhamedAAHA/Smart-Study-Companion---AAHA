@@ -1,5 +1,27 @@
 export type UserRole = "student" | "lecturer" | "admin";
-export type PreferredLanguage = "english" | "tamil" | "both";
+export type SriLankanMixMode =
+  | "tamil_english"
+  | "sinhala_english"
+  | "student_lk";
+
+/** How AI explains — includes classic + Sri Lankan mixed modes */
+export type ExplanationStyle =
+  | "english"
+  | "tamil"
+  | "both"
+  | SriLankanMixMode;
+
+export type PreferredLanguage = ExplanationStyle;
+
+export type VoiceRefineMode =
+  | "simpler"
+  | "real_life"
+  | "tamil"
+  | "tamil_english"
+  | "sinhala_english"
+  | "student_lk"
+  | "slow"
+  | "repeat";
 
 export interface User {
   id: string;
@@ -52,6 +74,15 @@ export interface StudyMaterial {
     elevenlabsConfigured?: boolean;
     voiceError?: string;
     questions?: McqQuestion[];
+    doubt?: string;
+    questionTranscript?: string;
+    transcript?: string;
+    inputMode?: "text" | "voice";
+    language?: ExplanationStyle;
+    mixMode?: SriLankanMixMode;
+    lastRefineMode?: VoiceRefineMode;
+    speechRate?: number;
+    audioPending?: boolean;
   };
   createdAt: string;
 }
@@ -72,6 +103,30 @@ export interface VivaSession {
   status: "active" | "completed";
   overallFeedback?: string;
 }
+
+export interface WalkSegment {
+  index: number;
+  title: string;
+  script: string;
+  audioUrl?: string;
+}
+
+export interface WalkSession {
+  _id: string;
+  documentId: string;
+  title: string;
+  segments: WalkSegment[];
+  currentIndex: number;
+  status: "active" | "completed";
+  explanationStyle?: string;
+}
+
+export type WalkInterruptAction =
+  | "repeat"
+  | "explain_again"
+  | "simpler"
+  | "skip"
+  | "continue";
 
 export interface DashboardData {
   documents: LectureDocument[];

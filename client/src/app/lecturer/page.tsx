@@ -70,17 +70,17 @@ function LecturerContent() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold">Lecturer Panel</h1>
-      <p className="text-slate-600">Review materials and create viva question sets</p>
+      <h1 className="font-display text-2xl font-bold text-fg">Lecturer Panel</h1>
+      <p className="text-fg-subtle">Review materials and create viva question sets</p>
 
       {message && (
-        <p className="mt-4 rounded-lg bg-green-50 px-4 py-2 text-sm text-green-800">
+        <p className="mt-4 rounded-lg bg-green-50 px-4 py-2 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-300">
           {message}
         </p>
       )}
 
       <section className="mt-8 card">
-        <h2 className="font-semibold">Create topic-based viva set</h2>
+        <h2 className="font-semibold text-fg">Create topic-based viva set</h2>
         <form onSubmit={createVivaSet} className="mt-4 space-y-3">
           <input
             className="input"
@@ -103,13 +103,13 @@ function LecturerContent() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-4 font-semibold">Pending approval ({pending.length})</h2>
+        <h2 className="mb-4 font-semibold text-fg">Pending approval ({pending.length})</h2>
         <div className="grid gap-3">
           {pending.map((doc) => (
             <div key={doc._id} className="card flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="font-medium">{doc.title}</p>
-                <p className="text-xs text-slate-500">Student upload</p>
+                <p className="font-medium text-fg">{doc.title}</p>
+                <p className="text-xs text-fg-muted">Student upload</p>
               </div>
               <div className="flex gap-2">
                 <button
@@ -134,18 +134,18 @@ function LecturerContent() {
 
       {summary && (
         <section className="mt-8 card">
-          <h2 className="mb-3 font-semibold">AI Summary Preview</h2>
+          <h2 className="mb-3 font-semibold text-fg">AI Summary Preview</h2>
           <MarkdownContent content={summary} />
         </section>
       )}
 
       <section className="mt-8">
-        <h2 className="mb-4 font-semibold">All documents</h2>
+        <h2 className="mb-4 font-semibold text-fg">All documents</h2>
         <ul className="space-y-2 text-sm">
           {documents.map((d) => (
-            <li key={d._id} className="rounded-lg border border-slate-200 px-4 py-2">
+            <li key={d._id} className="rounded-lg border border-slate-200 px-4 py-2 text-fg dark:border-slate-600">
               {d.title}{" "}
-              <span className="text-slate-400">
+              <span className="text-fg-muted">
                 {d.approvedByLecturer ? "· approved" : "· pending"}
               </span>
             </li>

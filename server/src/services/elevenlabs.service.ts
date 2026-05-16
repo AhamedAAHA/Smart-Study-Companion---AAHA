@@ -124,3 +124,8 @@ export async function textToSpeech(
 export function isElevenLabsConfigured(): boolean {
   return Boolean(env.elevenlabsApiKey);
 }
+
+/** Plain text used for TTS — suitable as an audio transcript. */
+export function speechTranscriptFromMarkdown(raw: string): string {
+  return prepareSpeechText(raw);
+}

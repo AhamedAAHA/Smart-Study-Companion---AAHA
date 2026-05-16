@@ -58,9 +58,9 @@ export function PomodoroTimer() {
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Timer className="h-5 w-5 text-brand-600" />
-          <h3 className="font-semibold">Focus timer</h3>
+          <h3 className="font-semibold text-fg">Focus timer</h3>
         </div>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-fg-muted">
           {sessionsToday} session{sessionsToday !== 1 ? "s" : ""} today
         </span>
       </div>
@@ -71,10 +71,10 @@ export function PomodoroTimer() {
             key={m}
             type="button"
             onClick={() => setMinutes(m)}
-            className={`rounded-lg px-3 py-1 text-xs font-medium ${
+            className={`rounded-lg px-3 py-1 text-xs font-medium transition-all duration-200 ${
               minutes === m
-                ? "bg-brand-600 text-white"
-                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                ? "scale-105 bg-brand-600 text-white shadow-glow"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             }`}
           >
             {m}m
@@ -99,7 +99,7 @@ export function PomodoroTimer() {
             r="45"
             fill="none"
             stroke="currentColor"
-            className="text-brand-500"
+            className="text-brand-500 transition-all duration-1000 ease-linear"
             strokeWidth="6"
             strokeDasharray={`${progress * 2.83} 283`}
             strokeLinecap="round"

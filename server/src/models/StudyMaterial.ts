@@ -7,8 +7,10 @@ export type StudyMaterialType =
   | "lecturer_tamil"
   | "viva_questions"
   | "voice_explanation"
+  | "doubt_explanation"
   | "study_plan"
-  | "mcq_quiz";
+  | "mcq_quiz"
+  | "localized_explanation";
 
 export interface IFlashcard {
   _id?: Types.ObjectId;
@@ -58,8 +60,10 @@ const studyMaterialSchema = new Schema<IStudyMaterial>(
         "lecturer_tamil",
         "viva_questions",
         "voice_explanation",
+        "doubt_explanation",
         "study_plan",
         "mcq_quiz",
+        "localized_explanation",
       ],
       required: true,
     },
